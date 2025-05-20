@@ -1,0 +1,77 @@
+infrastructureDefinition.name: k8s-prod
+infrastructureDefinition.identifier: k8s_prod
+infrastructureDefinition.orgIdentifier: default
+infrastructureDefinition.projectIdentifier: my_project
+infrastructureDefinition.environmentRef: prod
+infrastructureDefinition.deploymentType: Kubernetes
+infrastructureDefinition.type: KubernetesDirect
+infrastructureDefinition.spec.connectorRef: my_k8s_connector
+infrastructureDefinition.spec.namespace: prod-namespace
+infrastructureDefinition.spec.releaseName: release-prod
+
+
+import yaml
+
+def nested_set(dic, keys, value):
+    for i, key in enumerate(keys):
+        if key.isdigit():
+            key = int(key)
+        if i == len(keys) - 1:
+            if isinstance(dic, list):
+                while len(dic) <= key:
+                    dic.append({})
+                dic[key] = value
+            elif isinstance(dic, dict):
+                dic[key] = value
+        else:
+            next_key = keys[i + 1]
+            is_next_key_digit = next_key.isdigit()
+            if isinstance(dic, list):
+                while len(dic) <= key:
+                    dic.append({})
+                if not isinstance(dic[key], (dict, list)):
+                    dic[key] = {} if not is_next_key_digit else []
+                dic = dic[key]
+            elif isinstance(dic, dict):
+                if key not in dic:
+                    dic[key] = [] if is_next_key_digit else {}
+                dic = dic[key]
+
+def parse_input_file(file_path):
+    data = {}
+    with open(file_path, 'r') as file:
+        for line in file:
+            if not line.strip(): continue
+            key, value = line.strip().split(":", 1)
+            key_parts = [k.strip() for k in key.strip().split(".")]
+            value = value.strip()
+            nested_set(data, key_parts, value)
+    return data
+
+def write_yaml(data, output_file):
+    with open(output_file, 'w') as file:
+        yaml.dump(data, file, sort_keys=False, default_flow_style=False)
+
+if __name__ == "__main__":
+    input_file = "infra_input.txt"
+    output_file = "infrastructureDefinition.yaml"
+
+    infra_data = parse_input_file(input_file)
+    write_yaml(infra_data, output_file)
+
+    print(f"Infra
+
+
+output
+infrastructureDefinition:
+  name: k8s-prod
+  identifier: k8s_prod
+  orgIdentifier: default
+  projectIdentifier: my_project
+  environmentRef: prod
+  deploymentType: Kubernetes
+  type: KubernetesDirect
+  spec:
+    connectorRef: my_k8s_connector
+    namespace: prod-namespace
+    releaseName: release-prod
