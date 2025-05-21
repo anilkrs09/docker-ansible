@@ -24,6 +24,8 @@ infrastructureDefinition:
     releaseName: {{releaseName}}
 
 
+import re
+
 def load_mapping(file_path):
     mapping = {}
     with open(file_path, 'r') as f:
@@ -38,16 +40,19 @@ def replace_placeholders(template_path, mapping, output_path):
         content = f.read()
 
     for key, value in mapping.items():
-        placeholder = f"{{{{{key}}}}}"  # e.g., {{name}}
-        content = content.replace(placeholder, value)
+        # Match patterns like {{key}} or {{ key }}
+        pattern = r"\{\{\s*" + re.escape(key) + r"\s*\}\}"
+        content, count = re.subn(pattern, value, content)
+        print(f"Replaced {count} occurrence(s) of '{{{{{key}}}}}' with '{value}'")
 
     with open(output_path, 'w') as f:
         f.write(content)
 
-    print(f"Replaced values written to: {output_path}")
+    print(f"All replacements written to: {output_path}")
 
 if __name__ == "__main__":
     mapping = load_mapping("values.txt")
     replace_placeholders("template.yaml", mapping, "infrastructureDefinition.yaml")
+
 
 
