@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    parameters {
+        text(name: 'SCRIPT_CONTENT', 
+             defaultValue: '''import os
+from datetime import datetime
+
+filename = f"generated_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+with open(filename, "w") as f:
+    f.write("This file was generated from Jenkins multiline parameter.")
+print(f"Generated file: {filename}")
+''', 
+             description: 'Enter the Python script you want to run.')
+    }
+
+    stages {
+        stage('Run Python Script') {
+            steps {
+                script {
+                    // Save the parameter content to a .py file
+                    writeFile file: 'generated_script.py', text: params.SCRIPT_CONTENT
+
+                    // Execute it
+                    sh 'python3 generated_script.py'
+                }
+            }
+        }
+    }
+}
