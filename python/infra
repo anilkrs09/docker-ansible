@@ -1,3 +1,11 @@
+mkdir -p untracked_files
+git ls-files --others --exclude-standard | while read file; do
+  dir="untracked_files/$(dirname "$file")"
+  mkdir -p "$dir"
+  mv "$file" "$dir/"
+done
+
+
 infrastructureDefinition.name: k8s-prod
 infrastructureDefinition.identifier: k8s_prod
 infrastructureDefinition.orgIdentifier: default
